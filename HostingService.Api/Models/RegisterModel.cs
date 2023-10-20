@@ -1,7 +1,5 @@
-using System.ComponentModel.DataAnnotations;
-
-
-namespace HostingService.API.Models
+﻿using System.ComponentModel.DataAnnotations;
+namespace HostingService.Api.Models
 {
     public class RegisterModel
     {
@@ -14,5 +12,7 @@ namespace HostingService.API.Models
 
         [Required(ErrorMessage = "Password is required")]
         public string? Password { get; set; }
+
     }
 }
+

@@ -1,7 +1,7 @@
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-
-namespace HostingService.API.Models
+namespace HostingService.Api.Models
 {
     public class LoginModel
     {
@@ -12,3 +12,4 @@ namespace HostingService.API.Models
         public string? Password { get; set; }
     }
 }
+

@@ -1,4 +1,4 @@
-﻿namespace HostingService.API;
+﻿namespace HostingService.Api;
 
 public class WeatherForecast
 {
