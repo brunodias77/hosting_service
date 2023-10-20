@@ -1,16 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using HostingService.Infra.Configuration;
+﻿using System.Reflection;
 using HostingService.Application.Users.RegisterUser;
-using System.Reflection;
+using HostingService.Infra.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Add services to the container.
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDataDependencyInjection(builder.Configuration);
+//builder.Services.AddDataDependencyInjection(builder.Configuration);
 builder.Services.AddMediatR(conf => conf.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).GetTypeInfo().Assembly));
+
 
 var app = builder.Build();
 
@@ -23,7 +25,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

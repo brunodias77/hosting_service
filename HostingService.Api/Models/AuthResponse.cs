@@ -1,8 +1,10 @@
-namespace HostingService.API.Models
+﻿using System;
+namespace HostingService.Api.Models
 {
-    public class AuthReponse
+    public class AuthResponse
     {
         public string? Status { get; set; }
         public string? Message { get; set; }
     }
 }
+
