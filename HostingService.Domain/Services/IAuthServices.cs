@@ -1,13 +1,13 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+
 
 namespace HostingService.Domain.Services
 {
     public interface IAuthServices
     {
-        Task RegisterAsync(HostingService.Domain.User.User model);
-        Task LoginAsync(string username, string password);
+        Task<IdentityResult> RegisterAsync(HostingService.Domain.User.User model);
+        Task<SignInResult> LoginAsync(string username, string password);
+        Task<string> CreateToken();
     }
 }
 

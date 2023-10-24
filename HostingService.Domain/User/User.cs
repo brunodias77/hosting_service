@@ -22,6 +22,10 @@ namespace HostingService.Domain.User
             Password = password;
             NotifyDomainEvent(new UserCreatedDomainEvent(this.Id));
         }
+        public static User CreateRegistered(FirstName firstName, LastName lastName, Email email, Password password)
+        {
+            return new User(firstName, lastName, email, password);
+        }
     }
 }
 
