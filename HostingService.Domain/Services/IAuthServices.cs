@@ -1,6 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+
 
 namespace HostingService.Domain.Services
 {
@@ -8,6 +7,7 @@ namespace HostingService.Domain.Services
     {
         Task RegisterAsync(HostingService.Domain.User.User model);
         Task LoginAsync(string username, string password);
+        string CreateToken(IdentityUser user);
     }
 }
 
