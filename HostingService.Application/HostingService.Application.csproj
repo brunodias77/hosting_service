@@ -30,11 +30,13 @@
     <None Remove="Abstraction\" />
     <None Remove="Users\" />
     <None Remove="Users\RegisterUser\" />
+    <None Remove="Users\LoginUser\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Abstraction\" />
     <Folder Include="Users\" />
     <Folder Include="Users\RegisterUser\" />
+    <Folder Include="Users\LoginUser\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HostingService.Domain\HostingService.Domain.csproj" />
