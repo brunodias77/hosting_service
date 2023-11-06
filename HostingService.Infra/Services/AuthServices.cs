@@ -118,6 +118,16 @@ namespace HostingService.Infra.Services
             return ci;
         }
 
+        Task IAuthServices.RegisterAsync(User model)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IAuthServices.LoginAsync(string username, string password)
+        {
+            throw new NotImplementedException();
+        }
+
 
         //public async Task<string> CreateToken(IdentityUser user)
         //{
