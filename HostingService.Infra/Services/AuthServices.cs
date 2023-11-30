@@ -1,10 +1,10 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using HostingService.Application.Users.LoginUser;
-using HostingService.Domain.Services;
+using HostingService.Application.Response;
+using HostingService.Application.Services;
 using HostingService.Domain.User;
+using HostingService.Domain.ValueObjects;
 using HostingService.Infra.Data;
 using HostingService.Shared.Constants;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace HostingService.Infra.Services
 {
-    public class AuthServices : IAuthServices
+    public class AuthServices : IAuthService
     {
         readonly UserManager<IdentityUser> _userManager;
         readonly SignInManager<IdentityUser> _signInManager;
@@ -30,27 +30,30 @@ namespace HostingService.Infra.Services
             _configuration = configuration;
         }
 
-        public async Task<LoginUserResponse> LoginAsync(string username, string password)
+        public async Task<BaseResponse<Token>> LoginAsync(string username, string password)
         {
             var user = await _userManager.FindByEmailAsync(username);
             var result = await _signInManager.PasswordSignInAsync(username, password, false, lockoutOnFailure: false);
-            if(result.Succeeded == true)
+
+            if (result.Succeeded)
             {
                 var token = CreateToken(user);
-                return new LoginUserResponse
+                return BaseResponse<Token>.SuccessResponse(token); // Sucesso
+            }
+            else
+            {
+                // Construa uma resposta de falha
+                return new BaseResponse<Token>
                 {
-                    SignInResult = result,
-                    Token = token
-
+                    Success = false,
+                    Data = null,
+                    Error = "Falha na autenticação" // Mensagem de erro personalizada
                 };
             }
-            return new LoginUserResponse
-            {
-                SignInResult = result,
-            };
         }
 
-        public async Task<IdentityResult> RegisterAsync(User model)
+
+        public async Task<BaseResponse<IdentityResult>> RegisterAsync(User model)
         {
             var user = new IdentityUser
             {
@@ -59,12 +62,25 @@ namespace HostingService.Infra.Services
                 EmailConfirmed = true
             };
             var result = await _userManager.CreateAsync(user, model.Password.Value);
+
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, UserRoles.User);
+                // Retorne uma resposta de sucesso com o resultado da criação do usuário
+                return BaseResponse<IdentityResult>.SuccessResponse(result);
             }
-            return result;
+            else
+            {
+                // Retorne uma resposta de falha com o resultado e uma mensagem de erro
+                return new BaseResponse<IdentityResult>
+                {
+                    Success = false,
+                    Data = result,
+                    Error = "Falha ao registrar o usuário" // Você pode incluir detalhes mais específicos aqui
+                };
+            }
         }
+
 
         public async Task<bool> ValidateUser(User user)
         {
@@ -74,109 +90,33 @@ namespace HostingService.Infra.Services
 
             return result;
         }
-        public string CreateToken(IdentityUser user)
+        public Token CreateToken(IdentityUser user)
         {
-            var handler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtSettings:Secret").Value);
-            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            List<Claim> claims = new()
             {
-                Subject = GenerateClaims(user),
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = credentials,
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.Name, user.UserName!)
             };
-            var token = handler.CreateToken(tokenDescriptor);
-            return handler.WriteToken(token);
-            //List<Claim> claims = new()
-            //{
-            //    new Claim(ClaimTypes.NameIdentifier, user.Id),
-            //    new Claim(ClaimTypes.Email, user.Email!),
-            //    new Claim(ClaimTypes.Name, user.UserName!)
-            //};
 
-            //SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Secret").Value));
-            //SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha512Signature);
+            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Secret").Value));
+            SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha512Signature);
 
-            //SecurityTokenDescriptor tokenDescriptor = new()
-            //{
-            //    Subject = new ClaimsIdentity(claims),
-            //    Expires = DateTime.UtcNow.AddMinutes(10),
-            //    SigningCredentials = creds
-            //};
+            SecurityTokenDescriptor tokenDescriptor = new()
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                SigningCredentials = creds
+            };
 
-            //JwtSecurityTokenHandler tokenHandler = new();
-            //SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+            JwtSecurityTokenHandler tokenHandler = new();
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
-            //return tokenHandler.WriteToken(token);
+            return new Token
+            {
+                AccessToken = tokenHandler.WriteToken(token)
+            };
         }
-        private static ClaimsIdentity GenerateClaims(IdentityUser user)
-        {
-            var ci = new ClaimsIdentity();
-            ci.AddClaim(new Claim(ClaimTypes.Name, user.Email));
-            //foreach (var role in user.Roles)
-            //    ci.AddClaim(new Claim(ClaimTypes.Role, role));
-            return ci;
-        }
-
-        Task IAuthServices.RegisterAsync(User model)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IAuthServices.LoginAsync(string username, string password)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        //public async Task<string> CreateToken(IdentityUser user)
-        //{
-        //    var signingCredentials = GetSigningCredentials();
-        //    var claims = await GetClaims(user);
-        //    var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
-        //    return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-        //}
-        //private SigningCredentials GetSigningCredentials()
-        //{
-        //    var conf = _configuration.GetSection("JwtSettings:Secret").Value;
-        //    var key = Encoding.UTF8.GetBytes(conf);
-        //    var secret = new SymmetricSecurityKey(key);
-
-        //    return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
-        //}
-        //private async Task<List<Claim>> GetClaims(IdentityUser user)
-        //{
-        //    var claims = new List<Claim>
-        //    {
-        //        // new Claim("UserId", _user.Id),
-        //        // new Claim("Username", _user.UserName),
-        //        // new Claim("Email", _user.Email),
-        //        new Claim("NovaClaim", "NovaClaim")
-        //    };
-        //    var roles = await _userManager.GetRolesAsync(user);
-
-        //    foreach (var role in roles)
-        //    {
-        //        claims.Add(new Claim("Role", role));
-        //    }
-        //    return claims;
-        //}
-
-        //private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
-        //{
-        //    var jwtSettings = _configuration.GetSection("JwtSettings");
-
-        //    var tokenOptions = new JwtSecurityToken
-        //    (
-        //        issuer: jwtSettings["Issuer"],
-        //        audience: jwtSettings["Audience"],
-        //        claims: claims,
-        //        expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expires"])),
-        //        signingCredentials: signingCredentials
-        //    );
-
-        //    return tokenOptions;
-        //}
     }
 }
 

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using HostingService.Application.Abstraction;
+using HostingService.Application.Response;
+using HostingService.Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
 
 namespace HostingService.Application.Users.RegisterUser
 {
-    public class RegisterUserCommand : ICommand<RegisterUserResponse>
+    public class RegisterUserCommand : ICommand<BaseResponse<IdentityResult>>
     {
         [Required(ErrorMessage = "O campo {0} é obrigatorio")]
         public string FirstName { get; private set; }

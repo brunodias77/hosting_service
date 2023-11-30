@@ -1,6 +1,5 @@
-using HostingService.Domain.Services;
+using HostingService.Application.Services;
 using HostingService.Infra.Data;
-using HostingService.Infra.Repositories;
 using HostingService.Infra.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,7 @@ namespace HostingService.Infra.Configuration
         public static IServiceCollection AddDataDependencyInjection(this IServiceCollection services, IConfiguration configuration)
         {
             if (services is null) throw new ArgumentNullException(nameof(services));
-            services.AddTransient<IAuthServices, AuthServices>();
+            services.AddTransient<IAuthService, AuthServices>();
             services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")); });
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()

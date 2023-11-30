@@ -26,18 +26,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Extensions\ServiceCollectionExtensions.cs" />
+    <Compile Remove="Response\IBaseReponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Abstraction\" />
     <None Remove="Users\" />
     <None Remove="Users\RegisterUser\" />
     <None Remove="Users\LoginUser\" />
+    <None Remove="Response\" />
+    <None Remove="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Abstraction\" />
     <Folder Include="Users\" />
     <Folder Include="Users\RegisterUser\" />
     <Folder Include="Users\LoginUser\" />
+    <Folder Include="Response\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HostingService.Domain\HostingService.Domain.csproj" />
