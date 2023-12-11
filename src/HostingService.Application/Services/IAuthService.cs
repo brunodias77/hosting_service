@@ -10,7 +10,6 @@ namespace HostingService.Application.Services
     {
         Task<BaseResponse<Token>> LoginAsync(string username, string password);
         Task<BaseResponse<IdentityResult>> RegisterAsync(User model);
-        Task<bool> ValidateUser(User user);
     }
 }
 

@@ -23,15 +23,6 @@ namespace HostingService.Application.Users.LoginUser
             // Assumindo que result já é do tipo BaseResponse<Token>
             return result;
         }
-        //public async Task<BaseResponse<Token>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
-        //{
-        //    var result = await _authServices.LoginAsync(request.Username, request.Password);
-        //    return new BaseResponse<Token>
-        //    {
-        //        StatusCode = 201,
-        //        Data = null
-        //    };
-        //}
     }
 }
 

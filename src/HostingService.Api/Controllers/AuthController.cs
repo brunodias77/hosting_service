@@ -2,10 +2,13 @@
 using HostingService.Application.Users.LoginUser;
 using HostingService.Application.Users.RegisterUser;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HostingService.Api.Controllers
 {
+    [ApiController]
+    [Route("api/users")]
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -15,6 +18,7 @@ namespace HostingService.Api.Controllers
             _mediator = mediator;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserCommand request)
         {
@@ -28,9 +32,10 @@ namespace HostingService.Api.Controllers
             }
 
             // Em caso de sucesso, retorne o token
-            return Ok(response.Data);
+            return Ok(response.Data.AccessToken);
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserCommand request)
         {
